@@ -27,6 +27,7 @@
 package dropbox
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -498,6 +499,17 @@ func (db *Dropbox) UploadFile(src, dst string, overwrite bool, parentRev string)
 		return nil, err
 	}
 	return db.FilesPut(fd, fsize, dst, overwrite, parentRev)
+}
+
+// UploadBuffer uploads a byte buffer located in the buf mem portion to the dst path on Dropbox.
+func (db *Dropbox) UploadBuffer(buf bytes.Buffer, dst string, overwrite bool, parentRev string) (*Entry, error) {
+	var fsize int64
+
+	fsize = int64(buf.Len())
+
+	nopCloser := ioutil.NopCloser(&buf)
+
+	return db.FilesPut(nopCloser, fsize, dst, overwrite, parentRev)
 }
 
 // Thumbnails gets a thumbnail for an image.
